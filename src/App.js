@@ -1,23 +1,27 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react';
+import Customer from './components/Customer';
 
-function App() {
+const App = () => {
+  const [transactions, setTransactions] = useState([]);
+  const URL = 'https://demo9446702.mockable.io/v1/transactions';
+  const LoadText = 'Loading Data...';
+  useEffect(() => {
+    async function fetchData() {
+      const response = await fetch(URL);
+      const data = await response.json();
+      const processedData = data.map(transaction => {
+        const points = (transaction.amount > 100 ? 2 * (transaction.amount - 100) : 0) +
+          (transaction.amount > 50 ? 1 * 50 : 0);
+        return { ...transaction, points };
+      });
+      setTransactions(processedData);
+    }
+    fetchData();
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      {transactions.length ? <Customer transactions={transactions} /> : <div>{LoadText}</div>}
     </div>
   );
 }
